@@ -2,3 +2,11 @@
 - hosts: new_os
   roles:
     - role: default
+      user:
+        - username: CliffBooth
+          atom_packages:
+            - atom-clock
+            - autocomplete-python
+            - minimap
+            - sort-lines
+            - terminal-tab

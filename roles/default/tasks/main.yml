@@ -23,15 +23,25 @@
       - vim
       - wget
 
-- name: Download Atom and Kraken
+- name: Create config Atom dir
+  file:
+    path: '/home/{{ user.0.username }}/.config/tilix/schemes/'
+    state: directory
+    mode: '0755'
+    owner: '{{ user.0.username }}'
+    group: '{{ user.0.username }}'
+    recurse: yes
+
+- name: Download Atom and Kraken, atom sea-shell theme
   get_url:
     url: '{{ item.url }}'
-    dest: '{{ item.deb }}'
+    dest: '{{ item.file }}'
     mode: 'a+x'
     validate_certs: false
   with_items:
-    - { url: 'https://atom.io/download/deb', deb: '/tmp/atom.deb' }
-    - { url: 'https://release.gitkraken.com/linux/gitkraken-amd64.deb', deb: '/tmp/kraken.deb' }
+    - { url: 'https://atom.io/download/deb', file: '/tmp/atom.deb' }
+    - { url: 'https://release.gitkraken.com/linux/gitkraken-amd64.deb', file: '/tmp/kraken.deb' }
+    - { url: 'https://github.com/storm119/Tilix-Themes/blob/master/Themes-2/sea-shells.json', file: '/home/{{ user.0.username }}/.config/tilix/schemes/sea-shells.json' }
 
 - name: Install Atom and Kraken
   apt:
@@ -39,3 +49,20 @@
   with_items:
     - /tmp/atom.deb
     - /tmp/kraken.deb
+
+- name: Install Atom packages
+  become: yes
+  become_user: '{{ item.0.username }}'
+  shell: |
+    set -euo pipefail
+    apm list --bare | grep -E '^{{ item.1 }}@' &&
+    echo 'Already installed.' ||
+    apm install '{{ item.1 }}'
+  args:
+    executable: /bin/bash
+  with_subelements:
+    - '{{ user }}'
+    - atom_packages
+    - skip_missing: yes
+  register: apm_result
+  changed_when: "'Already installed.' not in apm_result.stdout"
