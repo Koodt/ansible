@@ -1,0 +1,24 @@
+---
+- name: Install packages with cache update
+  apt:
+    name: {{ packages }}
+    update_cache: yes
+    state: present
+    force: yes
+  vars:
+    packages:
+      - apt-file
+      - apt-mirror
+      - aptitude
+      - curl
+      - docker
+      - docker-compose
+      - mc
+      - ncdu
+      - ruby
+      - tcpdump
+      - tilix
+      - tmux
+      - tree
+      - vim
+      - wget

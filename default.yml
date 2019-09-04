@@ -1,0 +1,4 @@
+---
+- hosts: new_os
+  roles:
+    - role: default
